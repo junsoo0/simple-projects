@@ -23,24 +23,22 @@ void error_handling(char *message);
 
 int main(int argc, char *argv[])
 {
-	int serv_sock;
-	int clnt_sock;
-	struct sockaddr_in serv_addr;
-	struct sockaddr_in clnt_addr;
-	socklen_t clnt_addr_size;
+	int serv_sock, clnt_sock;
+	struct sockaddr_in serv_addr, clnt_addr;
 	int err_chk;
 	PACKET send_packet, recv_packet;
+	socklen_t clnt_addr_size;
 
 	memset(&send_packet, 0, sizeof(send_packet));
 	memset(&recv_packet, 0, sizeof(recv_packet));
 
-	if(argc!=2){
+	if(argc != 2) {
 		printf("Usage: %s <port>\n", argv[0]);
 		exit(1);
 	}
 	
 	printf("---------------------------\n");
-	printf(" Address Conversion Server\n");
+	printf(" Address Conversion Server \n");
 	printf("---------------------------\n");
 
 	serv_sock=socket(PF_INET, SOCK_STREAM, 0);
@@ -68,32 +66,29 @@ int main(int argc, char *argv[])
 /* 소켓 통신 시작 */
 
 	while(1) {
-		err_chk = read(clnt_sock, &recv_packet, sizeof(recv_packet));
-		if(err_chk == -1)
-			error_handling("read() error!\n");
+		read(clnt_sock, &recv_packet, sizeof(recv_packet));
+
 		if(recv_packet.cmd == QUIT) {
 			printf("[Rx] QUIT message received\n");
 			break;
 		}
+
 		printf("[Rx] Received Dotted-Decimal Address: %s\n", recv_packet.addr);
 
 		send_packet.cmd = RESPONSE;
 		strcpy(send_packet.addr, recv_packet.addr);
+
 		err_chk = inet_aton(recv_packet.addr, &send_packet.iaddr);
 		if(err_chk == 0) {
 			send_packet.result = ERROR;
-			err_chk = write(clnt_sock, &send_packet, sizeof(send_packet));
-			if(err_chk == -1)
-				error_handling("write() error!\n");
+			write(clnt_sock, &send_packet, sizeof(send_packet));
 			printf("[Tx] Address conversion fail: (%s)\n", send_packet.addr);
 		}
-		else if(err_chk == 1) {
+		else {
 			printf("inet_aton(%s) -> %#x\n", send_packet.addr, send_packet.iaddr.s_addr);
 
 			send_packet.result = SUCCESS;
-			err_chk = write(clnt_sock, &send_packet, sizeof(send_packet));
-			if(err_chk == -1)
-				error_handling("write() error!\n");
+			write(clnt_sock, &send_packet, sizeof(send_packet));
 			printf("[Tx] cmd: %d, iaddr: %#x, result: %d\n", send_packet.cmd, send_packet.iaddr.s_addr, send_packet.result);
 		}
 		
@@ -104,14 +99,8 @@ int main(int argc, char *argv[])
 	
 /* 소켓 통신 끝 */
 
-	err_chk = close(clnt_sock);
-	if(err_chk == -1)
-		error_handling("close() error!\n");
-
-	err_chk = close(serv_sock);
-	if(err_chk == -1)
-		error_handling("close() error!\n");
-
+	close(clnt_sock);
+	close(serv_sock);
 	return 0;
 }
 
@@ -119,6 +108,5 @@ void error_handling(char *message)
 {
 	fputs(message, stderr);
 	fputc('\n', stderr);
-
 	exit(1);
 }

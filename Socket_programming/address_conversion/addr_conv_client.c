@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 	memset(&send_packet, 0, sizeof(send_packet));
 	memset(&recv_packet, 0, sizeof(recv_packet));
 
-	if(argc!=3){
+	if(argc != 3) {
 		printf("Usage: %s <IP> <port>\n", argv[0]);
 		exit(1);
 	}
@@ -60,27 +60,20 @@ int main(int argc, char* argv[])
 
 		if(strcasecmp(buf, "quit") == 0) {
 			send_packet.cmd = QUIT;
-			err_chk = write(sock, &send_packet, sizeof(send_packet));
-			if(err_chk == -1)
-				error_handling("write() error!\n");
+			write(sock, &send_packet, sizeof(send_packet));
 			printf("[Tx] cmd: 2(QUIT)\n");
-
 			break;
 		}
 
 		send_packet.cmd = REQUEST;
 		strcpy(send_packet.addr, buf);
-		err_chk = write(sock, &send_packet, sizeof(send_packet));
-		if(err_chk == -1)
-			error_handling("write() error!\n");
+		write(sock, &send_packet, sizeof(send_packet));
 		printf("[Tx] cmd: %d, addr: %s\n", send_packet.cmd, send_packet.addr);
 
-		err_chk = read(sock, &recv_packet, sizeof(recv_packet));
-		if(err_chk == -1)
-			error_handling("read() error!\n");
+		read(sock, &recv_packet, sizeof(recv_packet));
 		if(recv_packet.result == ERROR)
 			printf("[Rx] cmd: %d, Address conversion fail! (result: %d)\n", recv_packet.cmd, recv_packet.result);
-		else if(recv_packet.result == SUCCESS)
+		else 
 			printf("[Rx] cmd: %d, Address conversion: %#x (result: %d)\n", recv_packet.cmd, recv_packet.iaddr.s_addr, recv_packet.result);
 
 		puts("");
@@ -90,10 +83,7 @@ int main(int argc, char* argv[])
 
 /* 소켓 통신 끝 */
 
-	err_chk = close(sock);
-	if(err_chk == -1)
-		error_handling("close() error!\n");
-
+	close(sock);
 	return 0;
 }
 
@@ -101,6 +91,5 @@ void error_handling(char *message)
 {
 	fputs(message, stderr);
 	fputc('\n', stderr);
-
 	exit(1);
 }
