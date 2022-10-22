@@ -67,12 +67,10 @@ int main(int argc, char *argv[])
 
 	while(1) {
 		read(clnt_sock, &recv_packet, sizeof(recv_packet));
-
 		if(recv_packet.cmd == QUIT) {
 			printf("[Rx] QUIT message received\n");
 			break;
 		}
-
 		printf("[Rx] Received Dotted-Decimal Address: %s\n", recv_packet.addr);
 
 		send_packet.cmd = RESPONSE;
@@ -91,7 +89,9 @@ int main(int argc, char *argv[])
 			write(clnt_sock, &send_packet, sizeof(send_packet));
 			printf("[Tx] cmd: %d, iaddr: %#x, result: %d\n", send_packet.cmd, send_packet.iaddr.s_addr, send_packet.result);
 		}
-		
+
+		memset(&recv_packet, 0, sizeof(recv_packet));
+		memset(&send_packet, 0, sizeof(send_packet));	
 		puts("");
 	}
 	

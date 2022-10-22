@@ -76,6 +76,8 @@ int main(int argc, char* argv[])
 		else 
 			printf("[Rx] cmd: %d, Address conversion: %#x (result: %d)\n", recv_packet.cmd, recv_packet.iaddr.s_addr, recv_packet.result);
 
+		memset(&send_packet, 0, sizeof(send_packet));
+		memset(&recv_packet, 0, sizeof(recv_packet));
 		puts("");
 	}
 
